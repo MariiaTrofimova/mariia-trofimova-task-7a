@@ -2,8 +2,6 @@ import model.*;
 
 import java.util.Random;
 
-import static util.BetService.betConditions;
-
 public class Game {
     private static final int MAX_AMOUNT_PLAYER = 1000;
     private static final int MAX_AMOUNT_CASINO = 1000_000;
@@ -53,7 +51,7 @@ public class Game {
         Bet bet = player.makeBet(MAX_BET);
 
         int price = bet.getPrice();
-        String betName = betConditions.get(bet.getCondition()).getSecond();
+        String betName = Roulette.betConditions.get(bet.getCondition()).getSecond();
 
         System.out.printf("%d: %d on %s ", i, price, betName);
         if (betName.equals("number")) {
@@ -63,7 +61,7 @@ public class Game {
     }
 
     private static void payToPlayer(Bet bet) {
-        int multiply = betConditions.get(bet.getCondition()).getFirst();
+        int multiply = Roulette.betConditions.get(bet.getCondition()).getFirst();
         int sum = bet.getPrice() * (multiply - 1);
         casino.decreaseAmount(sum);
         player.increaseAmount(sum);

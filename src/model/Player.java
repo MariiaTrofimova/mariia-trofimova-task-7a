@@ -1,7 +1,5 @@
 package model;
 
-import util.BetService;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,7 +23,7 @@ public class Player {
             price = amount;
         }
 
-        List<Predicate<Pair<Integer, Integer>>> predicates = new ArrayList<>(BetService.betConditions.keySet());
+        List<Predicate<Pair<Integer, Integer>>> predicates = new ArrayList<>(Roulette.betConditions.keySet());
         int betNum = random.nextInt(predicates.size());
         Predicate<Pair<Integer, Integer>> predicate = predicates.get(betNum);
 

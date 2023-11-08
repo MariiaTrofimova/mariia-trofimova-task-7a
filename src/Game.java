@@ -1,71 +1,96 @@
 import model.*;
-import util.BetService;
 
 import java.util.Random;
+
+import static util.BetService.betConditions;
 
 public class Game {
     private static final int MAX_AMOUNT_PLAYER = 1000;
     private static final int MAX_AMOUNT_CASINO = 1000_000;
     private static final int MAX_BET = 100;
 
-    private static int playerInitAmount;
+    private static Player player;
+    private static Casino casino;
+    private static Roulette roulette;
 
     public static void main(String[] args) {
-        Random random = new Random();
-        Player player = new Player("Lucky", random.nextInt(MAX_AMOUNT_PLAYER));
-        Casino casino = new Casino(random.nextInt(MAX_AMOUNT_CASINO));
-        Roulette roulette = new Roulette();
-        playerInitAmount = player.getAmount();
-        System.out.println("*************** Starting The Game ***************");
-        System.out.printf("Player %s have $%d. Casino have $%d%n",
-                player.getName(), player.getAmount(), casino.getAmount());
+        startGame();
+
         int i = 0;
         while (i < 100) {
-            Bet bet = player.makeBet(MAX_BET);
-            int price = bet.getPrice();
-            String betName = BetService.betConditions.get(bet.getCondition()).getSecond();
-            System.out.printf("%d: %d on %s ", i + 1, price, betName);
-            if (betName.equals("number")) {
-                System.out.printf("%d ", bet.getNumber());
-            }
+            i++;
+            Bet bet = makeBet(i);
 
             int number = roulette.start();
             System.out.printf("| The Number is %d  | ", number);
 
             Pair<Integer, Integer> pair = new Pair<>(bet.getNumber(), number);
+
             if (bet.getCondition().test(pair)) {
-                int multiply = BetService.betConditions.get(bet.getCondition()).getFirst();
-                int sum = price * (multiply - 1);
-                casino.decreaseAmount(sum);
-                player.increaseAmount(sum);
-                System.out.printf("You won %d!%n", sum);
+                payToPlayer(bet);
             } else {
-                casino.increaseAmount(price);
-                player.decreaseAmount(price);
-                System.out.printf("You lost %d!%n", price);
+                payToCasino(bet);
             }
-            i++;
             if (casino.isBankrupt() || player.isBankrupt()) {
                 break;
             }
         }
-        printResult(player, casino, i);
+        printResult(i);
     }
 
-    private static void printResult(Player player, Casino casino, int bets) {
+    private static void startGame() {
+        Random random = new Random();
+        player = new Player("Lucky", random.nextInt(MAX_AMOUNT_PLAYER));
+        casino = new Casino(random.nextInt(MAX_AMOUNT_CASINO));
+        roulette = new Roulette();
+
+        System.out.println("*************** Starting The Game ***************");
+        System.out.printf("Player %s have $%d. Casino have $%d%n",
+                player.getName(), player.getAmount(), casino.getAmount());
+    }
+
+    private static Bet makeBet(int i) {
+        Bet bet = player.makeBet(MAX_BET);
+
+        int price = bet.getPrice();
+        String betName = betConditions.get(bet.getCondition()).getSecond();
+
+        System.out.printf("%d: %d on %s ", i, price, betName);
+        if (betName.equals("number")) {
+            System.out.printf("%d ", bet.getNumber());
+        }
+        return bet;
+    }
+
+    private static void payToPlayer(Bet bet) {
+        int multiply = betConditions.get(bet.getCondition()).getFirst();
+        int sum = bet.getPrice() * (multiply - 1);
+        casino.decreaseAmount(sum);
+        player.increaseAmount(sum);
+        System.out.printf("You won %d!%n", sum);
+    }
+
+    private static void payToCasino(Bet bet) {
+        int price = bet.getPrice();
+        casino.increaseAmount(price);
+        player.decreaseAmount(price);
+        System.out.printf("You lost %d!%n", price);
+    }
+
+    private static void printResult(int bets) {
         System.out.println();
         System.out.println("******************** Results ********************");
 
         System.out.printf("The game lasted %d bets.%n", bets);
 
-        if (player.getAmount() > playerInitAmount) {
+        if (player.getAmount() > player.getInitAmount()) {
             System.out.println("Congratulations, you cheated the casino");
-            System.out.printf("You won %d%n", player.getAmount() - playerInitAmount);
-        } else if (player.getAmount() == playerInitAmount) {
+            System.out.printf("You won %d%n", player.getAmount() - player.getInitAmount());
+        } else if (player.getAmount() == player.getInitAmount()) {
             System.out.println("Congratulations, you saved your money");
         } else {
             System.out.println("Sorry, the casino cheated you");
-            System.out.printf("You lost %d%n", playerInitAmount - player.getAmount());
+            System.out.printf("You lost %d%n", player.getInitAmount() - player.getAmount());
         }
         System.out.printf("Player have $%d. Casino have $%d%n", player.getAmount(), casino.getAmount());
         System.out.println("******************* Game Over *******************");

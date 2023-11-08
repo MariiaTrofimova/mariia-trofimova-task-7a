@@ -10,10 +10,12 @@ import java.util.function.Predicate;
 public class Player {
     private final String name;
     private int amount;
+    private final int initAmount;
 
     public Player(String name, int amount) {
         this.name = name;
         this.amount = amount;
+        initAmount = amount;
     }
 
     public Bet makeBet(int maxBet) {
@@ -32,14 +34,12 @@ public class Player {
         return new Bet(price, predicate, number);
     }
 
-    public int decreaseAmount(int sum) {
+    public void decreaseAmount(int sum) {
         amount -= sum;
-        return amount;
     }
 
-    public int increaseAmount(int sum) {
+    public void increaseAmount(int sum) {
         amount += sum;
-        return amount;
     }
 
     public boolean isBankrupt() {
@@ -52,5 +52,9 @@ public class Player {
 
     public int getAmount() {
         return amount;
+    }
+
+    public int getInitAmount() {
+        return initAmount;
     }
 }

@@ -2,7 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
 public class Player {
@@ -17,19 +17,20 @@ public class Player {
     }
 
     public Bet makeBet(int maxBet) {
-        Random random = new Random();
-        int price = random.nextInt(maxBet);
+        int price = ThreadLocalRandom.current().nextInt(maxBet);
         if (price > amount) {
             price = amount;
         }
 
         List<Predicate<Pair<Integer, Integer>>> predicates = new ArrayList<>(Roulette.betConditions.keySet());
-        int betNum = random.nextInt(predicates.size());
+        int betNum = ThreadLocalRandom.current().nextInt(predicates.size());
         Predicate<Pair<Integer, Integer>> predicate = predicates.get(betNum);
+        Pair<Integer, String> pair = Roulette.betConditions.get(predicate);
+        String name = pair.getSecond();
+        int multiply = pair.getFirst();
+        int number = ThreadLocalRandom.current().nextInt(0, Roulette.MAX_NUMBER + 1);
 
-        int number = random.nextInt(36);
-
-        return new Bet(price, predicate, number);
+        return new Bet(price, predicate, number, name, multiply);
     }
 
     public void decreaseAmount(int sum) {

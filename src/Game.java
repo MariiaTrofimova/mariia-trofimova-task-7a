@@ -1,6 +1,6 @@
 import model.*;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Game {
     private static final int MAX_AMOUNT_PLAYER = 1000;
@@ -37,9 +37,8 @@ public class Game {
     }
 
     private static void startGame() {
-        Random random = new Random();
-        player = new Player("Lucky", random.nextInt(MAX_AMOUNT_PLAYER));
-        casino = new Casino(random.nextInt(MAX_AMOUNT_CASINO));
+        player = new Player("Lucky", ThreadLocalRandom.current().nextInt(MAX_AMOUNT_PLAYER));
+        casino = new Casino(ThreadLocalRandom.current().nextInt(MAX_AMOUNT_CASINO));
         roulette = new Roulette();
 
         System.out.println("*************** Starting The Game ***************");
@@ -51,7 +50,7 @@ public class Game {
         Bet bet = player.makeBet(MAX_BET);
 
         int price = bet.getPrice();
-        String betName = Roulette.betConditions.get(bet.getCondition()).getSecond();
+        String betName = bet.getName();
 
         System.out.printf("%d: %d on %s ", i, price, betName);
         if (betName.equals("number")) {
@@ -61,7 +60,7 @@ public class Game {
     }
 
     private static void payToPlayer(Bet bet) {
-        int multiply = Roulette.betConditions.get(bet.getCondition()).getFirst();
+        int multiply = bet.getMultiply();
         int sum = bet.getPrice() * (multiply - 1);
         casino.decreaseAmount(sum);
         player.increaseAmount(sum);

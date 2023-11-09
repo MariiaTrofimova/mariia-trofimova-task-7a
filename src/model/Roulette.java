@@ -3,12 +3,15 @@ package model;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
 public class Roulette {
+    public static final int MAX_NUMBER = 36;
+
     private static final List<Integer> red = List.of(1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36);
     public static final Map<Predicate<Pair<Integer, Integer>>, Pair<Integer, String>> betConditions = new HashMap<>();
+
     static {
         betConditions.put(pair -> pair.getSecond() % 2 == 0, new Pair<>(2, "even"));
         betConditions.put(pair -> pair.getSecond() % 2 == 1, new Pair<>(2, "odd"));
@@ -27,7 +30,6 @@ public class Roulette {
     }
 
     public int start() {
-        Random random = new Random();
-        return random.nextInt(36);
+        return ThreadLocalRandom.current().nextInt(0, MAX_NUMBER + 1);
     }
 }
